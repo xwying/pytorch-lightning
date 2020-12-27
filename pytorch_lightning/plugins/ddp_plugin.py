@@ -119,6 +119,7 @@ class DDPPlugin(LightningPlugin):
         Args:
             args: Inputs to the model.
             model: Model to train.
+
         Returns: args moved to correct device if needed.
         """
         return args
