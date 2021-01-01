@@ -43,6 +43,7 @@ class DDPShardedPlugin(DDPPlugin):
         return self._optim_state_dict(optimizer)
 
     def on_before_forward(self, model: LightningModule, *args):
+        args = list(args)
         args[0] = model._prepare_batch_for_transfer(args[0], model.trainer.root_gpu)
         return args
 

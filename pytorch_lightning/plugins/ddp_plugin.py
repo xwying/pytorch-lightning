@@ -125,6 +125,7 @@ class DDPPlugin(LightningPlugin):
 
         Returns: args moved to correct device if needed.
         """
+        args = list(args)
         args[0] = model.on_before_batch_transfer(args[0])
         return args
 
