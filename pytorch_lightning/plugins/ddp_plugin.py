@@ -113,8 +113,11 @@ class DDPPlugin(LightningPlugin):
         Example::
 
             def on_before_forward(self, model, *args):
+                args = super().on_before_forward(*args)
                 batch, batch_idx = args
-                return batch.to(model.device)
+                batch = batch.to(model.device)
+                args[0] = batch
+                return args
 
         Args:
             args: Inputs to the model.
@@ -122,6 +125,7 @@ class DDPPlugin(LightningPlugin):
 
         Returns: args moved to correct device if needed.
         """
+        args[0] = model.on_before_batch_transfer(args[0])
         return args
 
     def optimizer_state(self, optimizer: Optimizer) -> dict:

@@ -43,7 +43,8 @@ class DDPShardedPlugin(DDPPlugin):
         return self._optim_state_dict(optimizer)
 
     def on_before_forward(self, model: LightningModule, *args):
-        return model._prepare_batch_for_transfer(args, model.trainer.root_gpu)
+        args[0] = model._prepare_batch_for_transfer(args[0], model.trainer.root_gpu)
+        return args
 
     def _check_fairscale(self):
         if not _FAIRSCALE_AVAILABLE:
