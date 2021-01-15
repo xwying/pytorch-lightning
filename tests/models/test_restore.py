@@ -91,6 +91,8 @@ def test_model_properties_resume_from_checkpoint(enable_pl_optimizer, tmpdir):
     trainer_args = dict(
         default_root_dir=tmpdir,
         max_epochs=1,
+        limit_train_batches=2,
+        limit_val_batches=2,
         logger=False,
         enable_pl_optimizer=enable_pl_optimizer,
         callbacks=[checkpoint_callback, ModelTrainerPropertyParity()],  # this performs the assertions
@@ -112,8 +114,8 @@ def test_try_resume_from_non_existing_checkpoint(tmpdir):
         max_epochs=1,
         logger=False,
         callbacks=[checkpoint_cb],
-        limit_train_batches=0.1,
-        limit_val_batches=0.1,
+        limit_train_batches=2,
+        limit_val_batches=2,
     )
     # Generate checkpoint `last.ckpt` with BoringModel
     trainer.fit(model)
@@ -207,8 +209,8 @@ def test_running_test_pretrained_model_distrib_dp(tmpdir):
     trainer_options = dict(
         progress_bar_refresh_rate=0,
         max_epochs=2,
-        limit_train_batches=0.4,
-        limit_val_batches=0.2,
+        limit_train_batches=5,
+        limit_val_batches=5,
         callbacks=[checkpoint],
         logger=logger,
         gpus=[0, 1],
@@ -226,7 +228,7 @@ def test_running_test_pretrained_model_distrib_dp(tmpdir):
 
     # run test set
     new_trainer = Trainer(**trainer_options)
-    results = new_trainer.test(pretrained_model)
+    new_trainer.test(pretrained_model)
     pretrained_model.cpu()
 
     # test we have good test accuracy
@@ -258,8 +260,8 @@ def test_running_test_pretrained_model_distrib_ddp_spawn(tmpdir):
     trainer_options = dict(
         progress_bar_refresh_rate=0,
         max_epochs=2,
-        limit_train_batches=0.4,
-        limit_val_batches=0.2,
+        limit_train_batches=2,
+        limit_val_batches=2,
         callbacks=[checkpoint],
         logger=logger,
         gpus=[0, 1],
@@ -279,7 +281,7 @@ def test_running_test_pretrained_model_distrib_ddp_spawn(tmpdir):
 
     # run test set
     new_trainer = Trainer(**trainer_options)
-    results = new_trainer.test(pretrained_model)
+    new_trainer.test(pretrained_model)
     pretrained_model.cpu()
 
     # TODO: add end-to-end test
@@ -308,8 +310,8 @@ def test_running_test_pretrained_model_cpu(tmpdir):
     trainer_options = dict(
         progress_bar_refresh_rate=0,
         max_epochs=3,
-        limit_train_batches=0.4,
-        limit_val_batches=0.2,
+        limit_train_batches=2,
+        limit_val_batches=2,
         callbacks=[checkpoint],
         logger=logger,
         default_root_dir=tmpdir,
@@ -339,8 +341,8 @@ def test_load_model_from_checkpoint(tmpdir, model_template):
     trainer_options = dict(
         progress_bar_refresh_rate=0,
         max_epochs=2,
-        limit_train_batches=0.4,
-        limit_val_batches=0.2,
+        limit_train_batches=2,
+        limit_val_batches=2,
         callbacks=[ModelCheckpoint(dirpath=tmpdir, monitor='val_loss', save_top_k=-1)],
         default_root_dir=tmpdir,
     )
@@ -457,6 +459,8 @@ def test_model_saving_loading(tmpdir):
     # fit model
     trainer = Trainer(
         max_epochs=1,
+        limit_train_batches=2,
+        limit_val_batches=2,
         logger=logger,
         callbacks=[ModelCheckpoint(dirpath=tmpdir)],
         default_root_dir=tmpdir,
@@ -508,7 +512,11 @@ def test_strict_model_load_more_params(monkeypatch, tmpdir, tmpdir_server, url_c
 
     # fit model
     trainer = Trainer(
-        default_root_dir=tmpdir, max_epochs=1, logger=logger,
+        default_root_dir=tmpdir,
+        max_epochs=1,
+        limit_train_batches=2,
+        limit_val_batches=2,
+        logger=logger,
         callbacks=[ModelCheckpoint(dirpath=tmpdir)],
     )
     trainer.fit(model)
@@ -548,7 +556,11 @@ def test_strict_model_load_less_params(monkeypatch, tmpdir, tmpdir_server, url_c
 
     # fit model
     trainer = Trainer(
-        default_root_dir=tmpdir, max_epochs=1, logger=logger,
+        default_root_dir=tmpdir,
+        max_epochs=1,
+        limit_train_batches=2,
+        limit_val_batches=2,
+        logger=logger,
         callbacks=[ModelCheckpoint(dirpath=tmpdir)],
     )
     trainer.fit(model)
