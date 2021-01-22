@@ -178,6 +178,10 @@ class AttributeDict(Dict):
     "mew_key": 42
     "my-key":  3.14
     """
+    def __init__(self, d):
+        super(self.__class__, self).__init__()
+        for key, val in d.items():
+            self.__setattr__(key, val)
 
     def __getattr__(self, key):
         try:
@@ -186,14 +190,24 @@ class AttributeDict(Dict):
             raise AttributeError(f'Missing attribute "{key}"') from exp
 
     def __setattr__(self, key, val):
-        self[key] = val
+        if isinstance(val, dict):
+            self[key] = self.__class__(val)
+        else:
+            self[key] = val
 
     def __repr__(self):
         if not len(self):
             return ""
-        max_key_length = max([len(str(k)) for k in self])
-        tmp_name = '{:' + str(max_key_length + 3) + 's} {}'
-        rows = [tmp_name.format(f'"{n}":', self[n]) for n in sorted(self.keys())]
+        rows = []
+        def add_row(d, indent_level=0):
+            for n in sorted(d.keys()):
+                val = d[n]
+                if isinstance(val, dict):
+                    rows.append("    "*indent_level + f'{n}:')
+                    add_row(val, indent_level+1)
+                else:
+                    rows.append("    "*indent_level + f'{n}: {val}')
+        add_row(self)
         out = '\n'.join(rows)
         return out
 
@@ -267,3 +281,4 @@ def lightning_setattr(model, attribute, value):
     # Check if the attribute in datamodule (datamodule gets registered in Trainer)
     if trainer is not None and trainer.datamodule is not None and hasattr(trainer.datamodule, attribute):
         setattr(trainer.datamodule, attribute, value)
+
