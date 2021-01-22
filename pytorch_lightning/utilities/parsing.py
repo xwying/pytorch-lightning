@@ -281,3 +281,4 @@ def lightning_setattr(model, attribute, value):
     # Check if the attribute in datamodule (datamodule gets registered in Trainer)
     if trainer is not None and trainer.datamodule is not None and hasattr(trainer.datamodule, attribute):
         setattr(trainer.datamodule, attribute, value)
+        
